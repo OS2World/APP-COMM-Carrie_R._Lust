@@ -1,0 +1,166 @@
+/***
+ Carrie R. Lust - phone cost/online time tracking tool
+ Copyright (C) 1997-2000 Thorsten Thielen <thth@gmx.net>
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+ Carrie R. Lust homepage (as of Feb 20, 2000):
+ http://www.informatik.uni-trier.de/CIP/thielen/clust/
+ ***/
+
+#include <os2.h>
+#include "clust.h"
+
+ICON ID_CLUST "src/data/clust.ico"
+
+HELPTABLE MAIN_HELP_TABLE
+{
+    HELPITEM    ID_CLUST,           SUBTABLE_MAIN,         1000
+    HELPITEM    ID_DLG_SETTINGS,    SUBTABLE_MAIN,         1000
+}
+
+HELPSUBTABLE SUBTABLE_MAIN
+SUBITEMSIZE     2
+{
+    HELPSUBITEM    WID_PB_EXIT,      1000
+    HELPSUBITEM    WID_PB_SUSPEND,   1000
+    HELPSUBITEM    WID_PB_RESET,     1000
+}
+
+
+ACCELTABLE 1
+BEGIN
+        "x", WID_PB_EXIT, ALT
+	"s", WID_PB_SUSPEND, ALT
+        "g", WID_PB_SUSPEND, ALT
+        "r", WID_PB_RESET, ALT
+        "a", WID_PB_ABOUT, ALT
+        "c", WID_PB_SETTINGS, ALT
+END
+
+MENU IDM_POPUP
+{
+  MENUITEM "Stop/Go\tALT+S/G",          WID_PB_SUSPEND
+  MENUITEM "~Reset\tALT+R",             WID_PB_RESET
+  MENUITEM SEPARATOR
+  MENUITEM "~Settings...\tALT+C",       WID_PB_SETTINGS
+  MENUITEM SEPARATOR
+  MENUITEM "~Product information\tALT+A",             WID_PB_ABOUT
+  MENUITEM "~General help",             0,MIS_HELP
+  MENUITEM SEPARATOR
+  MENUITEM "E~xit\tALT+X",              WID_PB_EXIT
+}
+
+DLGTEMPLATE ID_DLG_SETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG "Settings", ID_DLG_SETTINGS, 50,50, 310,160, FS_DLGBORDER,
+           FCF_SYSMENU | FCF_SIZEBORDER | FCF_TITLEBAR | FCF_NOMOVEWITHOWNER
+    BEGIN
+        CONTROL "", WID_NB_SETTINGS, 5,5, 300,150, WC_NOTEBOOK,
+        	WS_VISIBLE | BKS_BACKPAGESTR | BKS_MAJORTABTOP |
+                BKS_ROUNDEDTABS | BKS_SOLIDBIND | BKS_STATUSTEXTLEFT |
+                BKS_TABTEXTCENTER | BKS_TABBEDDIALOG
+    END
+END
+
+DLGTEMPLATE ID_DLG_SETTINGSPAGE1 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Dialog Title", ID_DLG_SETTINGSPAGE1, 0, 0, 270, 110,
+    	    NOT FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        LTEXT           "Available stats", WID_NIL, 5, 98, 126, 8
+	LISTBOX         WID_LB_ITEMS, 6, 6, 120, 93, LS_MULTIPLESEL
+        AUTOCHECKBOX    "Show ""Exit"" button", WID_CB_SHOWEXITBUTTON,
+        		140, 92, 124, 10
+        AUTOCHECKBOX    "Show ""Stop/Go"" button", WID_CB_SHOWSUSPENDBUTTON,
+        		140, 81, 124, 10
+        AUTOCHECKBOX    "Show ""Reset"" button", WID_CB_SHOWRESETBUTTON,
+        		140, 70, 124, 10
+ /*       AUTOCHECKBOX    "Show ""Set Zone"" listbox", WID_CB_SHOWZONELISTBOX,
+        		140, 59, 124, 10 */
+    END
+END
+
+DLGTEMPLATE ID_DLG_SETTINGSPAGE2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Dialog Title", ID_DLG_SETTINGSPAGE2, 0, 0, 270, 110,
+    	    NOT FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        CONTROL         "", WID_LB_WARNTUNIT, 6, 50, 96, 54, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | WS_GROUP | WS_TABSTOP | 
+                        WS_VISIBLE
+        LTEXT           "at each new unit", WID_NIL, 110, 94, 166, 8                        
+        CONTROL         "", WID_LB_WARNTCHARGE, 6, 35, 96, 54, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | WS_GROUP | WS_TABSTOP | 
+                        WS_VISIBLE
+        LTEXT           "when switching to another charge", WID_NIL, 110, 79, 
+                        166, 8
+        CONTROL         "", WID_LB_WARNTCOSTS, 6, 20, 96, 54, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | WS_GROUP | WS_TABSTOP | 
+                        WS_VISIBLE
+        LTEXT           "when reaching costs of", WID_NIL, 110, 64, 99, 8
+        SPINBUTTON      WID_SB_COSTS, 214, 63, 46, 12, SPBS_FASTSPIN |
+        		SPBS_NUMERICONLY | SPBS_MASTER | WS_GROUP
+        CONTROL         "", WID_LB_WARNTLIMIT, 6, 5, 96, 54, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | WS_GROUP | WS_TABSTOP | 
+                        WS_VISIBLE
+        LTEXT           "after", WID_NIL, 110, 49, 20, 8
+        SPINBUTTON      WID_SB_LIMIT, 136, 48, 48, 12, SPBS_FASTSPIN |
+        		SPBS_NUMERICONLY | SPBS_MASTER | WS_GROUP
+        CONTROL         "", WID_CB_LIMITTYPE, 188, 5, 72, 54, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | WS_GROUP | WS_TABSTOP | 
+                        WS_VISIBLE
+        AUTOCHECKBOX    "Count down last 10 secs of unit with beeps",
+                        WID_CB_UNITCOUNTDOWN, 8, 28, 240, 10
+    END
+END
+
+DLGTEMPLATE ID_DLG_SETTINGSPAGE3 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Dialog Title", ID_DLG_SETTINGSPAGE3, 0, 0, 270, 110,
+    	    NOT FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        AUTOCHECKBOX    "Save connection info to logfile", WID_CB_USELOGFILE,
+        		6, 94, 200, 10
+        ENTRYFIELD      "", WID_E_LOGFILENAME, 22, 83, 196, 8, ES_MARGIN
+/*        PUSHBUTTON      "Find ...", WID_PB_FINDLOGFILE, 226, 81, 40, 12
+        AUTOCHECKBOX    "Limit size of logfile", WID_CB_LIMITLOGSIZE,
+        		6, 67, 100, 10
+        SPINBUTTON      WID_SB_LOGSIZELIMIT, 20, 56, 52, 12,
+        		SPBS_MASTER | WS_GROUP
+        LTEXT           "Entries", 106, 78, 58, 30, 8 */
+        AUTOCHECKBOX    "Save total connection time to file", WID_CB_USESAVEFILE,
+        		6, 67, 200, 10
+        ENTRYFIELD      "", WID_E_SAVEFILENAME, 22, 56, 196, 8, ES_MARGIN
+    END
+END
+
+DLGTEMPLATE ID_DLG_ABOUT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "About ""Carrie R. Lust""", ID_DLG_ABOUT, 90, 56, 250, 81,
+    	    WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        ICON            ID_CLUST, WID_NIL, 8, 57, 21, 16, WS_GROUP
+        LTEXT           PSZ_NAMEVERSION, WID_NIL, 42, 64, 202, 9
+                        PRESPARAMS PP_FOREGROUNDCOLOR, 0x00C80A0AL
+        LTEXT           "Phone cost/online time tracking/loging utility", WID_NIL, 42, 53, 202, 8
+        LTEXT           "Copyright (c) 1997-2000 Thorsten Thielen "
+                        "Released under the GPL (See file COPYING)", WID_NIL, 42, 32, 202, 18, DT_WORDBREAK
+        LTEXT           "e-Mail: thth@gmx.net", WID_NIL, 42, 23, 202, 8
+        LTEXT           "WWW: http://www.informatik.uni-trier.de/ CIP/thiele"
+                        "n/clust", WID_NIL, 42, 4, 202, 17, DT_WORDBREAK
+        DEFPUSHBUTTON   "Ok", DID_OK, 8, 6, 22, 26
+    END
+END

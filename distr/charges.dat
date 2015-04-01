@@ -1,0 +1,35 @@
+# Carrie R. Lust charges data for Luebecker Nachrichten Online
+# See Carrie's online help for detailed description
+
+# Day line format:
+# Name of weekday or date in format "Mon nn"
+
+# Charges line format:
+# Start of charge (always hh:mm:ss!), Length of unit in 10th secs,
+# Money per unit, Name of charge (ignored by now)
+
+# -------------------------------------------------------------------------
+
+#Provider: LN Online
+
+#Zone: City
+
+Day: Monday
+Day: Tuesday
+Day: Wednesday
+Day: Thursday
+Day: Friday
+
+Charge: 00:00:00,   10, 0.075, Nacht
+Charge: 09:00:00,   10, 0.0916666666666666, Tag
+Charge: 18:00:00,   10, 0.075, Nacht
+
+# -------------------------------------------------------------------------
+
+Day: Saturday
+Day: Sunday
+Day: Dec 24
+Day: Dec 25
+Day: Dec 26
+
+Charge: 00:00:00,   10, 0.075, Feiertag
